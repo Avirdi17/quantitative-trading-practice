@@ -1,0 +1,23 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import yfinance as yf
+
+# Load data
+symbol = "SPY"
+data = yf.download(symbol, start="2020-01-01", end="2024-12-31")
+data['Short_MA'] = data['Adj Close'].rolling(window=50).mean()
+data['Long_MA'] = data['Adj Close'].rolling(window=200).mean()
+
+# Simple crossover strategy
+data['Signal'] = 0
+data['Signal'][50:] = (data['Short_MA'][50:] > data['Long_MA'][50:]).astype(int)
+data['Position'] = data['Signal'].diff()
+
+# Plot
+plt.figure(figsize=(14, 7))
+plt.plot(data['Adj Close'], label='Price', alpha=0.5)
+plt.plot(data['Short_MA'], label='50-day MA')
+plt.plot(data['Long_MA'], label='200-day MA')
+plt.legend()
+plt.title('Moving Average Crossover')
+plt.show()
